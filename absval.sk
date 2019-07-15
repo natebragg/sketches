@@ -1,0 +1,73 @@
+// a in terms of b
+// inline harnesses
+// asserts become assumes
+// questions:
+//   - works for a harnesses in b, but what about ab harnesses?
+//   - what about underconstrained harnesses?
+
+generator int constant() {
+    int m = ??;
+    return {| m | -m |};
+}
+
+int abs(int n) {
+    if ({| n < constant() | n > constant() | n <= constant() | n >= constant() | n == constant() | n != constant() |}) {
+        return pos(n);
+    } else {
+        return neg(n);
+    }
+}
+
+int pos_mock(int n) {
+    if( n == 1 ) {
+        return 1;
+    }
+    if( n == -1 ) {
+        return -1;
+    }
+    int uninterp_pos(int m);
+    return uninterp_pos(n);
+}
+
+int pos_orig(int n) {
+  return {| n + constant() | n - constant() | n * constant() | n / constant() |};
+}
+
+int pos(int n) {
+    return pos_mock(n);
+}
+
+int neg_mock(int n) {
+    if( n == 2 ) {
+        return -2;
+    }
+    if( n == -1 ) {
+        return 1;
+    }
+    if( n == -2 ) {
+        return 2;
+    }
+    int uninterp_neg(int m);
+    return uninterp_neg(n);
+}
+
+int neg_orig(int n) {
+  return {| n + constant() | n - constant() | n * constant() | n / constant() |};
+}
+
+int neg(int n) {
+    return neg_mock(n);
+}
+
+harness void ha(int n) {
+    assert abs(n)  >= 0;
+    assert abs(-n) >= 0;
+}
+
+harness void hp() {
+  assert pos(1) == 1;
+}
+
+harness void hn() {
+  assert neg(1) == -1;
+}

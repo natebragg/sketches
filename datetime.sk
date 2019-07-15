@@ -1,0 +1,162 @@
+adt Tm {
+    DateTime {
+        int sec;    /* Seconds (0-60) */
+        int min;    /* Minutes (0-59) */
+        int hour;   /* Hours (0-23) */
+        int mday;   /* Day of the month (1-31) */
+        int mon;    /* Month (0-11) */
+        int year;   /* Year - 1900 */
+        int yday;   /* Day in the year (0-365, 1 Jan = 0) */
+    }
+}
+
+int digit(char d) {
+    if       (d == '0') {
+        return 0;
+    } else if(d == '1') {
+        return 1;
+    } else if(d == '2') {
+        return 2;
+    } else if(d == '3') {
+        return 3;
+    } else if(d == '4') {
+        return 4;
+    } else if(d == '5') {
+        return 5;
+    } else if(d == '6') {
+        return 6;
+    } else if(d == '7') {
+        return 7;
+    } else if(d == '8') {
+        return 8;
+    } else if(d == '9') {
+        return 9;
+    }
+    return -1;
+}
+
+int num_mock([int n], char[n] ds, ref int cur) {
+    if(ds == "2001-11-12 18:31:01" && cur == 0) {
+        cur = 4;
+        return 2001;
+    } else if(ds == "2001-11-12 18:31:01" && cur == 5) {
+        cur = 7;
+        return 11;
+    } else if(ds == "2001-11-12 18:31:01" && cur == 8) {
+        cur = 10;
+        return 12;
+    } else if(ds == "2001-11-12 18:31:01" && cur == 11) {
+        cur = 13;
+        return 18;
+    } else if(ds == "2001-11-12 18:31:01" && cur == 14) {
+        cur = 16;
+        return 31;
+    } else if(ds == "2001-11-12 18:31:01" && cur == 17) {
+        cur = 19;
+        return 1;
+    }
+    bit uninterp([int n2], char[n2] ds2, ref int cur2);
+    return uninterp(ds, cur);
+}
+
+int num_orig([int n], char[n] ds, ref int cur) {
+    int r = 0;
+    for(; cur < n; cur++) {
+        int d = digit(ds[cur]);
+        if(d == -1) {
+            return r;
+        }
+        r = r * 10 + d;
+    }
+    return r;
+}
+
+int num([int n], char[n] ds, ref int cur) {
+    return num_orig(ds, cur);
+}
+
+void match([int n], char c, char[n] cs, ref int cur) {
+    if(cur < n && cs[cur] == c) {
+        cur++;
+    }
+}
+
+int days_in_months_before(int mo) {
+    int[12] month_days = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
+    int days = 0;
+    for(int i = 0; i < mo; i++) {
+        days += month_days[i];
+    }
+    return days;
+}
+
+bit leap_year(int y) {
+    return y % 400 == 0 ? true : y % 100 == 0 ? false : y % 4 == 0;
+}
+
+Tm strptime([int n, int f], char[n] in, char[f] fmt) {
+    int cur = 0, y = 0, mo = 0, d = 0, h = 0, m = 0, s = 0, yd = 0;
+    bit fchar = ??;
+    for(int i=0; i < f; i++) {
+        if(fchar) {
+            fchar = ??;
+            if(fmt[i] == 'Y') {
+                y = num(in, cur);
+            } else if(fmt[i] == 'm') {
+                mo = num(in, cur) - 1;
+            } else if(fmt[i] == 'd') {
+                d = num(in, cur);
+            } else if(fmt[i] == 'H') {
+                h = num(in, cur);
+            } else if(fmt[i] == 'M') {
+                m = num(in, cur);
+            } else if(fmt[i] == 'S') {
+                s = num(in, cur);
+            }
+        } else if(fmt[i] == '%') {
+            fchar = true;
+        } else {
+            match(fmt[i], in, cur);
+        }
+    }
+    yd = days_in_months_before(mo) + (leap_year(y) && mo > 1 ? 1 : 0) + d;
+    return new DateTime(sec = s, min = m, hour = h, mday = d, mon = mo, year = y - 1900, yday = yd);
+}
+
+harness void h_iso()
+{
+    Tm tm = strptime("2001-11-12 18:31:01", "%Y-%m-%d %H:%M:%S");
+    switch(tm) {
+        case DateTime: {
+            assert tm.year == 101;
+            assert tm.mon == 10;
+            assert tm.mday == 12;
+            assert tm.yday == 316;
+            assert tm.hour == 18;
+            assert tm.min == 31;
+            assert tm.sec == 1;
+        }
+    }
+}
+
+harness void h_num()
+{
+    int cur = 0;
+    assert num("2001-11-12 18:31:01", cur) == 2001;
+    assert cur == 4;
+    cur = 5;
+    assert num("2001-11-12 18:31:01", cur) == 11;
+    assert cur == 7;
+    cur = 8;
+    assert num("2001-11-12 18:31:01", cur) == 12;
+    assert cur == 10;
+    cur = 11;
+    assert num("2001-11-12 18:31:01", cur) == 18;
+    assert cur == 13;
+    cur = 14;
+    assert num("2001-11-12 18:31:01", cur) == 31;
+    assert cur == 16;
+    cur = 17;
+    assert num("2001-11-12 18:31:01", cur) == 1;
+    assert cur == 19;
+}
