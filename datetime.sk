@@ -96,10 +96,10 @@ bit leap_year(int y) {
 
 Tm strptime([int n, int f], char[n] in, char[f] fmt) {
     int cur = 0, y = 0, mo = 0, d = 0, h = 0, m = 0, s = 0, yd = 0;
-    bit fchar = ??;
+    bit fchar = ??; // false
     for(int i=0; i < f; i++) {
         if(fchar) {
-            fchar = ??;
+            fchar = ??; // false
             if(fmt[i] == 'Y') {
                 y = num(in, cur);
             } else if(fmt[i] == 'm') {
@@ -114,7 +114,7 @@ Tm strptime([int n, int f], char[n] in, char[f] fmt) {
                 s = num(in, cur);
             }
         } else if(fmt[i] == '%') {
-            fchar = true;
+            fchar = ??; // true
         } else {
             match(fmt[i], in, cur);
         }
