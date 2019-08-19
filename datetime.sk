@@ -59,6 +59,19 @@ int num_mock([int n], char[n] ds, ref int cur) {
     return uninterp(ds, cur);
 }
 
+model int num_model([int n], char[n] ds, ref int cur) {
+	int cur_orig = cur;
+    int uninterp([int n2], char[n2] ds2, ref int cur2);
+	int result = uninterp(ds, cur);
+	assume (!(ds =="2001-11-12 18:31:01" && cur_orig ==  0)) || ((result == 2001) && (cur == 4));
+	assume (!(ds =="2001-11-12 18:31:01" && cur_orig ==  5)) || ((result == 11) && (cur == 7));
+	assume (!(ds =="2001-11-12 18:31:01" && cur_orig ==  8)) || ((result == 12) && (cur == 10));
+	assume (!(ds =="2001-11-12 18:31:01" && cur_orig == 11)) || ((result == 18) && (cur == 13));
+	assume (!(ds =="2001-11-12 18:31:01" && cur_orig == 14)) || ((result == 31) && (cur == 16));
+	assume (!(ds =="2001-11-12 18:31:01" && cur_orig == 17)) || ((result == 1) && (cur == 19));
+	return result;
+}
+
 int num_orig([int n], char[n] ds, ref int cur) {
     int r = 0;
     for(; cur < n; cur++) {
