@@ -7,11 +7,11 @@
 
 generator int constant() {
     int m = ??;
-    return {| m | -m |};
+    return {| (-)? m |};
 }
 
 int abs(int n) {
-    if ({| n < constant() | n > constant() | n <= constant() | n >= constant() | n == constant() | n != constant() |}) {
+    if ({| n (< | > | <= | >= | == | !=) constant() |}) {
         return pos(n);
     } else {
         return neg(n);
@@ -29,12 +29,12 @@ int pos_mock(int n) {
     return uninterp_pos(n);
 }
 
-int pos_orig(int n) {
-  return {| n + constant() | n - constant() | n * constant() | n / constant() |};
+generator int xform(int n) {
+  return {| n (+ | - | * | /) constant() |};
 }
 
 int pos(int n) {
-    return pos_mock(n);
+    return xform(n);
 }
 
 int neg_mock(int n) {
@@ -51,12 +51,8 @@ int neg_mock(int n) {
     return uninterp_neg(n);
 }
 
-int neg_orig(int n) {
-  return {| n + constant() | n - constant() | n * constant() | n / constant() |};
-}
-
 int neg(int n) {
-    return neg_mock(n);
+    return xform(n);
 }
 
 harness void ha(int n) {
